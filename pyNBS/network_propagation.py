@@ -47,8 +47,8 @@ def network_propagation(network, binary_matrix, alpha=0.7, symmetric_norm=False,
     if verbose:
         print(f"Performing network propagation with alpha: {alpha}")
     # Separate network into connected components and calculate propagation values of each sub-sample on each connected component
-    # subgraphs = list(nx.connected_component_subgraphs(network))
     subgraphs = list((network.subgraph(c) for c in nx.connected_components(network)))
+    
     # Initialize propagation results by propagating first subgraph
     subgraph = subgraphs[0]
     subgraph_nodes = list(subgraph.nodes)
@@ -99,12 +99,13 @@ def network_kernel_propagation(network, network_kernel, binary_matrix, verbose=F
     subgraph_nodelists = list(nx.connected_components(network))
     # Initialize propagation results by propagating first subgraph
     prop_nodelist = list(subgraph_nodelists[0])
+
     prop_data = np.dot(binary_matrix.T.loc[prop_nodelist].fillna(0).T, network_kernel.loc[prop_nodelist][prop_nodelist])
     # Get propagated results for remaining subgraphs
     for nodelist in subgraph_nodelists[1:]:
         subgraph_nodes = list(nodelist)
         prop_nodelist = prop_nodelist + subgraph_nodes
-        subgraph_prop_data = np.dot(binary_matrix.T.loc[subgraph_nodes].fillna(0).T, network_kernel.loc[subgraph_nodes][subgraph_nodes])
+        subgraph_prop_data = np.dot(binary_matrix.T.iloc[subgraph_nodes].fillna(0).T, network_kernel.loc[subgraph_nodes][subgraph_nodes])
         prop_data = np.concatenate((prop_data, subgraph_prop_data), axis=1)
     # Return propagated result as dataframe
     prop_data_df = pd.DataFrame(data=prop_data, index=binary_matrix.index, columns=prop_nodelist)

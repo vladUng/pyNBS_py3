@@ -67,9 +67,9 @@ def subsample_sm_mat(sm_mat, propNet=None, pats_subsample_p=0.8, gene_subsample_
     Nsample = round(Nind*pats_subsample_p)
     Dsample = round(Dfeat*gene_subsample_p)
     # Sub sample patients
-    pats_subsample = random.sample(sm_mat.index, int(Nsample))
+    pats_subsample = random.sample(list(sm_mat.index), int(Nsample))
     # Sub sample genes
-    gene_subsample = random.sample(sm_mat.columns, int(Dsample))
+    gene_subsample = random.sample(list(sm_mat.columns), int(Dsample))
     # Sub sampled data mat
     gind_sample = sm_mat.loc[pats_subsample][gene_subsample]
     # Filter by mutation count
@@ -80,7 +80,8 @@ def subsample_sm_mat(sm_mat, propNet=None, pats_subsample_p=0.8, gene_subsample_
         # If there is no intersection, throw an error, gene names are not matched
         if len(set(list(propNet.nodes)).intersection(set(sm_mat.columns)))==0:
             raise ValueError('No mutations found in network nodes. Gene names may be mismatched.')
-        gind_sample_filt = gind_sample.T.loc[list(propNet.nodes)].fillna(0).T
+        # gind_sample_filt = gind_sample.T.loc[gind_sample.T.index.isin(list(propNet.nodes))].T
+        gind_sample_filt = pd.DataFrame(index=list(propNet.nodes)).join(gind_sample.T).fillna(0).T
     else:
         gind_sample_filt = gind_sample
     return gind_sample_filt
@@ -127,7 +128,7 @@ def mixed_netNMF(data, KNN_glap, k=3, l=200, maxiter=250,
     H_init = np.random.rand(k,c)
     H = np.maximum(H_init, eps)
     # Initialize W
-    W_init = np.linalg.lstsq(H.T, data.T)[0].T
+    W_init = np.linalg.lstsq(H.T, data.T, rcond=None)[0].T
     W_init = np.dot(W_init, np.diag(1/sum(W_init)))
     W = np.maximum(W_init, eps)
     
