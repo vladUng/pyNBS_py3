@@ -31,7 +31,7 @@ def network_inf_KNN_glap(network, gamma=0.01, kn=11, verbose=True, **save_args):
     L_inv_arr = np.linalg.inv(L_vandin)
     L_inv = pd.DataFrame(L_inv_arr, index = network_nodes, columns = network_nodes)
     if verbose:
-        print 'Graph influence matrix calculated:', time.time()-glap_inv_starttime, 'seconds'
+        print (f'Graph influence matrix calculated: {time.time()-glap_inv_starttime} seconds')
     KNN_starttime = time.time()
     # Construct KNN graph using the 11 nearest neighbors by influence score (glap_pinv)
     # The code may include each gene's self as the 'nearest' neighbor
@@ -39,9 +39,9 @@ def network_inf_KNN_glap(network, gamma=0.01, kn=11, verbose=True, **save_args):
     # We only draw edges where the influence is > 0 between nodes
     KNN_graph = nx.Graph()
     for gene in L_inv.index:
-        gene_knn = L_inv.ix[gene].sort_values(ascending=False)[:kn].index
+        gene_knn = L_inv.loc[gene].sort_values(ascending=False)[:kn].index
         for neighbor in gene_knn:
-            if L_inv.ix[gene][neighbor] > 0:
+            if L_inv.loc[gene][neighbor] > 0:
                 KNN_graph.add_edge(gene, neighbor)
     KNN_nodes = list(KNN_graph.nodes)
     # Calculate KNN graph laplacian
@@ -55,7 +55,7 @@ def network_inf_KNN_glap(network, gamma=0.01, kn=11, verbose=True, **save_args):
             save_path = save_args['outdir']+'knnGlap.csv'
         knnGlap.to_csv(save_path)
     if verbose:
-        print 'Graph laplacian of KNN network from influence matrix calculated:', time.time()-KNN_starttime, 'seconds'    
+        print (f'Graph laplacian of KNN network from influence matrix calculated: {time.time()-KNN_starttime} seconds'    )
     return knnGlap
 
 # Function to sub-sample binary somatic mutation profile data frame in context of a given network
@@ -71,7 +71,7 @@ def subsample_sm_mat(sm_mat, propNet=None, pats_subsample_p=0.8, gene_subsample_
     # Sub sample genes
     gene_subsample = random.sample(sm_mat.columns, int(Dsample))
     # Sub sampled data mat
-    gind_sample = sm_mat.ix[pats_subsample][gene_subsample]
+    gind_sample = sm_mat.loc[pats_subsample][gene_subsample]
     # Filter by mutation count
     gind_sample = gind_sample[gind_sample.sum(axis=1) > min_muts]
     # Filter columns by network nodes only if network is given
@@ -80,7 +80,7 @@ def subsample_sm_mat(sm_mat, propNet=None, pats_subsample_p=0.8, gene_subsample_
         # If there is no intersection, throw an error, gene names are not matched
         if len(set(list(propNet.nodes)).intersection(set(sm_mat.columns)))==0:
             raise ValueError('No mutations found in network nodes. Gene names may be mismatched.')
-        gind_sample_filt = gind_sample.T.ix[list(propNet.nodes)].fillna(0).T
+        gind_sample_filt = gind_sample.T.loc[list(propNet.nodes)].fillna(0).T
     else:
         gind_sample_filt = gind_sample
     return gind_sample_filt
@@ -132,13 +132,13 @@ def mixed_netNMF(data, KNN_glap, k=3, l=200, maxiter=250,
     W = np.maximum(W_init, eps)
     
     if verbose:
-        print 'W and H matrices initialized'
+        print ('W and H matrices initialized')
     
     # Get graph matrices from laplacian array
     D = np.diag(np.diag(KNN_glap)).astype(float)
     A = (D-KNN_glap).astype(float)
     if verbose:
-        print 'D and A matrices calculated'
+        print ('D and A matrices calculated')
     # Set mixed netNMF reconstruction error convergence factor
     XfitPrevious = np.inf
     
@@ -156,13 +156,13 @@ def mixed_netNMF(data, KNN_glap, k=3, l=200, maxiter=250,
 
         # Reporting netNMF update status
         if (verbose) & (i%10==0):
-            print 'Iteration >>', i, 'Mat-res:', WHres, 'Lambda:', l, 'Wfrob:', np.linalg.norm(W)
+            print(f'Iteration >> {i} Mat-res: {WHres}, Lambda:, {l}, Wfrob:,{np.linalg.norm(W)}')
         if (err_delta_tol > fitRes) | (err_tol > WHres) | (i+1 == maxiter):
             if verbose:
-                print 'NMF completed!'
-                print 'Total iterations:', i+1
-                print 'Final Reconstruction Error:', WHres
-                print 'Final Reconstruction Error Delta:', fitRes
+                print ('NMF completed!')
+                print ('Total iterations: {i+1}')
+                print (f'Final Reconstruction Error: {WHres}')
+                print (f'Final Reconstruction Error Delta: {fitRes}')
             numIter = i+1
             finalResidual = WHres
             break
@@ -223,20 +223,20 @@ def mixed_netNMF_debug(data, KNN_glap, W_init=None, H_init=None, k=3, l=200, max
         else:
             raise ValueError('W_init dimensions must be '+repr(k)+' x '+repr(c))
     if verbose:
-        print 'W and H matrices initialized'
+        print ('W and H matrices initialized')
     
     # Get graph matrices from laplacian array
     D = np.diag(np.diag(KNN_glap)).astype(float)
     A = (D-KNN_glap).astype(float)
     if verbose:
-        print 'D and A matrices calculated'
+        print ('D and A matrices calculated')
     # Set mixed netNMF reporting variables
     resVal, fitResVect, timestep, Wlist, Hlist = [], [], [], [], []
     XfitPrevious = np.inf
     
     # Updating W and H
     for i in range(maxiter):
-    	iter_time = time.time()
+        iter_time = time.time()
         XfitThis = np.dot(W, H)
         WHres = np.linalg.norm(data-XfitThis) # Reconstruction error
 
@@ -252,13 +252,13 @@ def mixed_netNMF_debug(data, KNN_glap, W_init=None, H_init=None, k=3, l=200, max
         Wlist.append(W)
         Hlist.append(H)
         if (verbose) & (i%10==0):
-            print 'Iteration >>', i, 'Mat-res:', WHres, 'Gamma:', l, 'Wfrob:', np.linalg.norm(W)
+            print ('Iteration >>', i, 'Mat-res:', WHres, 'Gamma:', l, 'Wfrob:', np.linalg.norm(W))
         if (err_delta_tol > fitRes) | (err_tol > WHres) | (i+1 == maxiter):
             if verbose:
-                print 'NMF completed!'
-                print 'Total iterations:', i+1
-                print 'Final Reconstruction Error:', WHres
-                print 'Final Reconstruction Error Delta:', fitRes
+                print ('NMF completed!')
+                print ('Total iterations: {i+1}')
+                print (f'Final Reconstruction Error: {WHres}')
+                print (f'Final Reconstruction Error Delta: {fitRes}')
             numIter = i+1
             finalResidual = WHres
             break

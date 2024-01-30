@@ -26,7 +26,7 @@ def consensus_hclust_hard(Hlist, k=3, hclust_linkage_method='average',
         pat_list = pat_list.union(set(H.index))
     pat_list = sorted(list(pat_list))
     if verbose:
-        print 'Constructing Hlist:', len(Hlist), 'cluster matrices, ', len(pat_list), 'samples'
+        print (f'Constructing Hlist: {len(Hlist)} cluster matrices,  {len(pat_list)} samples')
 
     # Initialzie co-clustering tables
     co_clust_table = pd.DataFrame(0, index=pat_list, columns=pat_list)
@@ -61,7 +61,7 @@ def consensus_hclust_hard(Hlist, k=3, hclust_linkage_method='average',
         cc_hard_sim_table.to_csv(save_cc_matrix_path)
         cluster_assign.to_csv(save_clusters_path)
     if verbose:
-        print 'Hlist consensus constructed and sample clusters assigned'
+        print ('Hlist consensus constructed and sample clusters assigned')
     return cc_hard_sim_table, Z, cluster_assign
 
 # Constructs Hlist object for consensus clustering functions if NBS iterations were run in parallel and outputs saved to a folder

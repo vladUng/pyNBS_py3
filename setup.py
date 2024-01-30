@@ -33,3 +33,4 @@ setup(
         'scikit-learn>=0.17.1',
         'seaborn>=0.7.1']
 )
+

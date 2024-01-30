@@ -18,7 +18,7 @@ def load_network_file(network_file_path, delimiter='\t', degree_shuffle=False, l
 	# Load network using networkx
 	network = nx.read_edgelist(network_file_path, delimiter=delimiter, data=False)
 	if verbose:
-		print 'Network File Loaded:', network_file_path
+		print (f'Network File Loaded: {network_file_path}')
 	if degree_shuffle:
 		network = degree_shuffNet(network, verbose=verbose)
 	if label_shuffle:
@@ -45,7 +45,7 @@ def load_binary_mutation_data(filename, filetype='list', delimiter='\t', verbose
 	else:
 		raise ValueError("'filetype' must be either 'matrix' or 'list'.")
 	if verbose:
-		print 'Binary Mutation Matrix Loaded:', filename
+		print(f'Binary Mutation Matrix Loaded: {filename}')
 	return binary_mat
 
 # Loads any non-default optional parameters that may be used in the pyNBS pipeline
@@ -129,11 +129,11 @@ def degree_shuffNet(network, verbose=False):
 		nx.double_edge_swap(shuff_net, nswap=edge_len, max_tries=edge_len*10)
 	except:
 		if verbose:
-			print 'Note: Maximum number of swap attempts ('+repr(edge_len*10)+') exceeded before desired swaps achieved ('+repr(edge_len)+').'
+			print(f'Note: Maximum number of swap attempts ({repr(edge_len*10)}) exceeded before desired swaps achieved ({repr(edge_len)})')
 	if verbose:
 		# Evaluate Network Similarity
 		shared_edges = len(set(list(network.edges)).intersection(set(list(shuff_net.edges))))
-		print 'Network shuffled:', time.time()-shuff_time, 'seconds. Edge similarity:', shared_edges/float(edge_len)
+		print (f'Network shuffled:{(time.time()-shuff_time)} seconds. Edge similarity: {(shared_edges/float(edge_len))}')
 	return shuff_net
 
 # Shuffle network by permuting network node labels
@@ -150,7 +150,7 @@ def label_shuffNet(network, verbose=False):
 	if verbose:
 		# Evaluate Network Similarity
 		shared_edges = len(set(list(network.edges)).intersection(set(list(shuff_net.edges))))
-		print 'Network shuffled:', time.time()-shuff_time, 'seconds. Edge similarity:', shared_edges/float(edge_len)
+		print (f'Network shuffled:{(time.time()-shuff_time)} seconds. Edge similarity: {(shared_edges/float(edge_len))}')
 	return shuff_net		
 
 # Filter extended network txt file where all edges are weighted by a specific quantile
@@ -161,11 +161,11 @@ def filter_weighted_network(network_file_path, save_path, nodeA_col=0, nodeB_col
 	# Filter edges by score quantile
 	q_score = data[score_col].quantile(q)
 	if verbose:
-		print str(round(q*100,2))+'%', 'score:', q_score
+		print(f'{round(q*100,2)} %, score: {q_score})')
 	data_filt = data[data[score_col]>q_score][data.columns[[nodeA_col, nodeB_col, score_col]]]
 	data_filt.columns = ['nodeA', 'nodeB', 'edgeScore']
 	if verbose:
-		print data_filt.shape[0], '/', data.shape[0], 'edges retained'
+		print(f' {data_filt.shape[0]} / {data.shape[0]}, edges retained')
 	data_filt.to_csv(save_path, sep='\t', header=False, index=False)
 	return 
 
@@ -203,7 +203,7 @@ def process_TCGA_MAF(maf_file, save_path, filetype='matrix', gene_naming='Symbol
 			f.write(sm[0][:12]+'\t'+sm[1]+'\n')
 		f.close()
 		if verbose:
-			print 'Binary somatic mutations list saved'
+			print('Binary somatic mutations list saved')
 	else:
 		# Save non-duplicate patients' binary TCGA somatic mutation matrix to csv
 		TCGA_sm_mat_filt = TCGA_sm_mat.ix[non_dup_IDs]
@@ -215,8 +215,8 @@ def process_TCGA_MAF(maf_file, save_path, filetype='matrix', gene_naming='Symbol
 		TCGA_sm_mat_filt3 = TCGA_sm_mat_filt2[nonempty_cols]
 		TCGA_sm_mat_filt3.to_csv(save_path)
 		if verbose:
-			print 'Binary somatic mutation matrix saved'
+			print ('Binary somatic mutation matrix saved')
 	if verbose:
-		print 'MAF file processed:', maf_file, round(time.time()-loadtime, 2), 'seconds.'
+		print (f'MAF file processed: {maf_file}, {round(time.time()-loadtime, 2)} seconds.')
 	return
 

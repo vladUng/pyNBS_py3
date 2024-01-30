@@ -40,7 +40,7 @@ def NBS_single(sm_mat, regNet_glap, propNet=None, propNet_kernel=None,
     sm_mat_subsample = core.subsample_sm_mat(sm_mat, propNet=propNet, 
         pats_subsample_p=pats_subsample_p, gene_subsample_p=gene_subsample_p, min_muts=min_muts)
     if verbose:
-        print 'Somatic mutation data sub-sampling complete'
+        print('Somatic mutation data sub-sampling complete')
 
     # Throw exception if subsampling returned empty dataframe
     if sm_mat_subsample.shape[0]==0:
@@ -74,11 +74,11 @@ def NBS_single(sm_mat, regNet_glap, propNet=None, propNet_kernel=None,
             else:
                 prop_sm_data = prop.network_kernel_propagation(propNet, propNet_kernel, sm_mat_subsample)
         if verbose:
-            print 'Somatic mutation data propagated'
+            print ('Somatic mutation data propagated')
     else:
         prop_sm_data = sm_mat_subsample
         if verbose:
-          print 'Somatic mutation data not propagated'
+          print ('Somatic mutation data not propagated')
 
     # Quantile Normalize Data
     qnorm_data = True
@@ -87,11 +87,11 @@ def NBS_single(sm_mat, regNet_glap, propNet=None, propNet_kernel=None,
     if qnorm_data:
         prop_data_qnorm = core.qnorm(prop_sm_data)
         if verbose:
-            print 'Somatic mutation data quantile normalized'
+            print ('Somatic mutation data quantile normalized')
     else:
         prop_data_qnorm = prop_sm_data
         if verbose:
-          print 'Somatic mutation data not quantile normalized'
+          print ('Somatic mutation data not quantile normalized')
 
     # Prepare data for mixed netNMF function (align propagated profile columns with regularization network laplacian rows)
     if propNet is not None:
@@ -140,9 +140,9 @@ def NBS_single(sm_mat, regNet_glap, propNet=None, propNet_kernel=None,
                 save_path = kwargs['outdir']+'H.csv'
         H_df.to_csv(save_path)
         if verbose:
-            print 'H matrix saved:', save_path
+            print (f'H matrix saved: {save_path}')
     else:
         pass
     if verbose:
-        print 'pyNBS iteration complete'
+        print ('pyNBS iteration complete')
     return H_df

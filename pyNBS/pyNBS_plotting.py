@@ -50,7 +50,7 @@ def plot_cc_map(cc_table, linkage, row_color_map=None, col_color_map=None, verbo
         plt.savefig(save_cc_map_path, bbox_inches='tight')
         plt.show()
     if verbose:
-        print 'Co-Clustering Map plotted'
+        print ('Co-Clustering Map plotted')
     return
 
 # Function for plotting Kaplan Meier plot of cluster survivals
@@ -93,7 +93,7 @@ def cluster_KMplot(cluster_assign, clin_data_fn, delimiter='\t', lr_test=True, t
                            np.array(cluster_survivals[cluster_assign.name]), t_0=tmax,
                            event_observed=np.array(cluster_survivals.vital_status)).p_value
         if verbose:
-            print 'Multi-Class Log-Rank P:', p
+            print (f'Multi-Class Log-Rank P: {p}')
         plt.title(title+'\np='+repr(round(p, 4)), fontsize=24, y=1.02)
     else:
         plt.title(title, fontsize=24, y=1.02)
@@ -106,7 +106,7 @@ def cluster_KMplot(cluster_assign, clin_data_fn, delimiter='\t', lr_test=True, t
         plt.savefig(save_KMplot_path, bbox_inches='tight')
         plt.show()
     if verbose:
-        print 'Kaplan Meier Plot constructed'
+        print ('Kaplan Meier Plot constructed')
     if lr_test:
         return p
     else:
