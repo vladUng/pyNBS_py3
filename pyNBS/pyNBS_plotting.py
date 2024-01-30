@@ -17,7 +17,7 @@ def cluster_color_assign(cluster_assignments, name=None):
     cluster_cmap = {i:colors[i-1] for i in range(1, k+1)}
     pat_colors = {}
     for pat in cluster_assignments.index:
-        pat_colors[pat] = cluster_cmap[cluster_assignments.ix[pat]]
+        pat_colors[pat] = cluster_cmap[cluster_assignments.loc[pat]]
     cluster_cmap = pd.Series(pat_colors, name=name)
     return cluster_cmap
 
@@ -78,7 +78,7 @@ def cluster_KMplot(cluster_assign, clin_data_fn, delimiter='\t', lr_test=True, t
     # Plot each cluster onto KM Plot
     for clust in clusters:
         clust_pats = list(cluster_assign[cluster_assign==clust].index)
-        clust_surv_data = surv.ix[clust_pats].dropna()
+        clust_surv_data = surv.loc[clust_pats].dropna()
         kmf.fit(clust_surv_data.overall_survival, clust_surv_data.vital_status, label='Group '+str(clust)+' (n=' +  str(len(clust_surv_data)) + ')')
         kmf.plot(ax=ax, color=cluster_cmap[clust], ci_show=False)
     # Set KM plot limits to 5 years and labels
